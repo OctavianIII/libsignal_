@@ -7,9 +7,13 @@ use libsignal_bridge_macros::*;
 use libsignal_protocol::error::Result;
 use libsignal_protocol::*;
 use static_assertions::const_assert_eq;
-
+use std::convert::TryFrom;
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
+use rand::rngs::StdRng;
+use rand::SeedableRng;
+use std::fs::OpenOptions;
+use std::io::Write;
 
 // Will be unused when building for Node only.
 #[allow(unused_imports)]
@@ -195,11 +199,19 @@ bridge_get!(
 
 #[bridge_fn(ffi = "privatekey_generate", node = "PrivateKey_Generate")]
 fn ECPrivateKey_Generate() -> PrivateKey {
-    let mut rng = rand::rngs::OsRng;
+    const SEED: [u8; 32] = [42; 32]; 
+    let mut rng = StdRng::from_seed(SEED);
     let keypair = KeyPair::generate(&mut rng);
-    keypair.private_key
+    let private_key = keypair.private_key;
+    let bytes = private_key.serialize();
+        // Create/open a file to write the private keys
+        let mut file = OpenOptions::new().append(true).open("private_keys.key").expect("Unable to open file");
+    
+        // Write the private key bytes to the file (appending?)
+        file.write_all(&bytes).expect("write failed");
+    
+        private_key
 }
-
 #[bridge_fn(ffi = "privatekey_get_public_key", node = "PrivateKey_GetPublicKey")]
 fn ECPrivateKey_GetPublicKey(k: &PrivateKey) -> Result<PublicKey> {
     k.public_key()
