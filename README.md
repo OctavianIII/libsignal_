@@ -1,4 +1,5 @@
 # Overview
+## Do not use this code, keys are seeded for testing purposes
 
 libsignal contains platform-agnostic APIs used by the official Signal clients and servers, exposed
 as a Java, Swift, or TypeScript library. The underlying implementations are written in Rust:
