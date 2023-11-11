@@ -14,6 +14,8 @@ use rand::rngs::StdRng;
 use rand::SeedableRng;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::fs::File;
+
 
 // Will be unused when building for Node only.
 #[allow(unused_imports)]
@@ -202,6 +204,7 @@ fn ECPrivateKey_Generate() -> PrivateKey {
     const SEED: [u8; 32] = [42; 32]; 
     let mut rng = StdRng::from_seed(SEED);
     let keypair = KeyPair::generate(&mut rng);
+    File::create("private_keys.key");
     let private_key = keypair.private_key;
     let bytes = private_key.serialize();
         // Create/open a file to write the private keys
